@@ -1,5 +1,5 @@
 Team Members:
-Emmett Gateley
-Bennett McDowell
-Micheal Brumbaugh
+Emmett Gateley,
+Bennett McDowell,
+Micheal Brumbaugh,
 James Maner
