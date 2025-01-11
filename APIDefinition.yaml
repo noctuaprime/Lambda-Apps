@@ -1,0 +1,490 @@
+# Account Services API
+#
+#
+# Description: This API includes the header API information, the Server information,
+#              the user account paths, the user account components such as parameters,
+#              responses, and schema's. This API also includes user accounts and their
+#              properties.
+#
+# Purpose: This API allows the various website users to create accounts, login
+#          into https://www.cusports.com and search/adjust various settings.
+#          It is also used by the CUSports admin to manage account information.
+
+
+# ---------General API Information---------
+openapi: '3.0.0'
+info:
+  version: '1.0.0'
+  title: 'Services API'
+  description: Services API
+
+# ---------API Server Information---------
+servers:
+  - url: https://www.cusports.com/api
+
+# ---------API Paths Information---------
+paths:
+  # Users can be customers, business users, customer service reps, admin, or other employees; personal information is also stored
+  /accounts:
+
+    # Get all user accounts
+    get:
+      description: Returns a list of user accounts and filter by specific parameters such as
+        PageLimit
+        PageOffset
+        AccountActivity
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+        - $ref: '#/compenents/parameters/AccountActivity'
+
+      # Responses to getting the list of all users
+      responses:
+        '200':
+          description: Retrieved the list of all user accounts successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/account'
+        '400':
+          description: Did not reach the server successfully
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+    # Creates a user account with user entered properties; assigns user with an id
+    post:
+      description: Allows you to add a new account or accounts to the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account'
+
+      # Responses to creating a particular users
+      responses:
+        '200':
+          description: Successfully added a new user account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/account'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+  # Login path for every user account to login into the website
+  /account/login/{email}/{password}:
+    parameters:
+      - name: email
+        description: The unique username of a user
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: password
+        description: The password of said user
+        in: path
+        required: true
+        schema:
+          type: string
+
+
+    # Gets the particular user account information depending on which user logged in
+    patch:
+      description: login a user to the CUSports Website
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginCredentials'
+
+      # Responses to the particular user logging in at the time
+      responses:
+        '200':
+          description: Login Successful (Give Security Token by Security Services)
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+  # User's id path that allows users to fetch or edit a particular user account
+  /account/{id}:
+    parameters:
+      - name: id
+        description: The unique identifier of a user
+        in: path
+        required: true
+        schema:
+          type: string
+
+    # Retrieve the information for a user by id
+    get:
+      description: Retrieve a specific user by an id
+
+      # Responses to retrieving a particular user
+      responses:
+        '200':
+          description: Sucessfully returned The user corresponding to the provided `id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/account'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+
+      # Permanently deletes a user
+    delete:
+      description: deletes a user's account
+
+      # Responses to deleting a particular user
+      responses:
+        '200':
+          description: Successfully deleted user
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+    # changes the users password
+    patch:
+      description: patches the user account based on information provided
+
+      responses:
+        '200':
+          description: Successfully updated provided information
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+  # User's notification path that allows users to post a new notification
+  /notifications:
+    post:
+      description: Add a new notification to the database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/notification'
+
+      responses:
+        '200':
+          description: Successfully added a new notification to the database
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+
+
+  # User's notification/{notificationID} path that allows users to fetch a specific notification
+  /notifications/{notificationID}:
+    parameters:
+      - name: notificationID
+        description: The unique identifier of a user
+        in: path
+        required: true
+        schema:
+          type: string
+    # Retrieve the information for a notification by notification code
+    get:
+      description: Retrieve a specific notification via notificationID
+
+      # Responses to retrieving a particular notification
+      responses:
+        '200':
+          description: Sucessfully returned The notification corresponding to the provided code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notification'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+  # Add a new order
+  /orders:
+    post:
+      description: Add a new order to the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/order'
+      responses:
+        '200':
+          description: Successfully added a new order.
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+    get:
+      description: Retrieve a list of all orders or filter by status.
+      parameters:
+        - name: orderStatus
+          in: query
+          description: Filter orders by their status.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved orders.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/order'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+  # Modify an existing order
+  /orders/{orderId}:
+    parameters:
+      - name: orderId
+        in: path
+        description: The unique identifier for an order.
+        required: true
+        schema:
+          type: string
+    patch:
+      description: Modify an order's details if it is not yet filled.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/orderUpdate'
+      responses:
+        '200':
+          description: Successfully updated the order.
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+  # Retrieve orders for a specific user
+  /orders/user/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: The unique identifier for a user.
+        required: true
+        schema:
+          type: string
+    get:
+      description: Retrieve all orders for a specific user.
+      responses:
+        '200':
+          description: Successfully retrieved the user's orders.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/order'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+
+# ---------API Components Information---------
+# Contains all reusable parameters, responses, and schemas for the Accounts API
+components:
+
+  # ---------Parameters---------
+  parameters:
+
+    # Helps set the limit of user accounts on a single page
+    PageLimit:
+      name: limit
+      in: query
+      description: Limits the number of items on a page
+      schema:
+        type: integer
+
+    # Helps to select which page of user accounts to be displayed
+    PageOffset:
+      name: offset
+      in: query
+      description: Specifies the page number of the user accounts to be displayed
+      schema:
+        type: integer
+
+    # Boolean value to query accounts based on (if online = true, show account)
+    AccountActivity:
+      name: online
+      in: query
+      description: Specifies whether an account is online or not
+      schema:
+        $ref: '#components/schemas/userActivity'
+
+  # ---------API Responses Information---------
+  responses:
+
+    # A schema for general 400 error code information
+    400Error:
+      description: Invalid Client Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                description: A human readable error message
+                type: string
+
+    # A schema for general 500 error code information
+    500Error:
+      description: Unexpected Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                description: A human readable error message
+                type: string
+
+  # ---------API Schemas Information---------
+  schemas:
+
+    # Login Credential schema to be re-used throughout the API
+    loginCredentials:
+      description: The requirements to login
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    # User Preferences schema to be re-used throughout the API
+    userPreferences:
+      description: represents the preferences that a user may have
+      type: object
+      required:
+        - language
+      properties:
+        language:
+          type: string
+        deliveryAddress:
+          type: string
+        preferredPayment:
+          type: string
+
+    # User Activity schema to be re-used throughout the API
+    userActivity:
+      description: represents the activity condition of a given user
+      type: object
+      required:
+        - active
+      properties:
+        active:
+          type: boolean
+
+    # User account schema to be re-used throughout the API
+    account:
+      description: A single user account for the CUSports application
+      type: object
+      required:
+        - id
+        - name
+
+      properties:
+        # Unique ID for a given user
+        id:
+          type: string
+        name:
+          type: string
+        # User Preferences of the user
+        preferences:
+          $ref: "#/components/schemas/userPreferences"
+        activity:
+          $ref: "#/components/schemas/userActivity"
+        login:
+          $ref: "#/components/schemas/loginCredentials"
+
+
+
+    # Notifcation schema to be re-used throughout the API
+    notification:
+      description: A single notifcation definded by a code and a name
+      type: object
+      required:
+        - notificationID
+        - notifcationName
+
+      properties:
+        #unique code for a given notification type
+        notificationID:
+          type: string
+        notificationName:
+          type: string
+
+    # Order schema to be re-used throughout the API
+    order:
+      description: A single order place by a user.
+      type: object
+      required:
+        - orderId
+        - id
+        - items
+        - orderStatus
+        - totalPrice
+
+      properties:
+        orderId:
+          type: string
+        id:
+          type: string
+        items:
+          type: array
+          items:
+            type: string
+        orderStatus:
+          type: string
+        totalPrice:
+          type: integer
+
+    # Update Order schema to be re-used throughout the API
+    orderUpdate:
+      description: Updates an order
+      type: object
+      required:
+        - items
+
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+
+
+  # ---------API SecuritySchemes Information NOT NEEDED FOR 3720---------
+  #securitySchemes:
+  #  ApiKey:
+  #    type: apiKey
+  #    in: header
+  #    name: X-Api-Key
+
+# ---------API Security Information  NOT NEEDED FOR 3720---------
+#security:
+#  - ApiKey: []
