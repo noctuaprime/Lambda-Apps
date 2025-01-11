@@ -1,1 +1,5 @@
-# CPSC3720F24-Team09
+Team Members:
+Emmett Gateley
+Bennett McDowell
+Micheal Brumbaugh
+James Maner
